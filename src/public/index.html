@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Буквица AI — Оцифровка аудио и видео на базе Groq Whisper</title>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <!-- CSS Stylesheet -->
+  <link rel="stylesheet" href="index.css">
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+  <!-- Background Glows -->
+  <div class="glow-bg-1"></div>
+  <div class="glow-bg-2"></div>
+
+  <div class="app-container">
+    <!-- Header -->
+    <header class="app-header">
+      <div class="logo-area">
+        <div class="logo-icon">
+          <i data-lucide="audio-lines"></i>
+        </div>
+        <div class="logo-text">
+          <h1>Буквица <span>AI</span></h1>
+          <p>Мгновенная оцифровка аудио и видео</p>
+        </div>
+      </div>
+      <div class="header-status">
+        <span class="status-indicator online"></span>
+        <span class="status-text">Groq Whisper Active</span>
+      </div>
+    </header>
+
+    <!-- Main Grid -->
+    <main class="app-grid">
+      <!-- Left Panel: Controls & Input -->
+      <section class="control-panel">
+        <!-- Input Selector Tabs -->
+        <div class="tabs-container">
+          <button id="tab-file" class="tab-btn active" onclick="switchTab('file')">
+            <i data-lucide="file-audio"></i>
+            <span>Файл</span>
+          </button>
+          <button id="tab-link" class="tab-btn" onclick="switchTab('link')">
+            <i data-lucide="link"></i>
+            <span>Ссылка</span>
+          </button>
+        </div>
+
+        <!-- File Upload Section -->
+        <div id="section-file" class="input-section active">
+          <div class="dropzone" id="dropzone">
+            <input type="file" id="file-input" accept="audio/*,video/*" style="display: none;">
+            <div class="dropzone-content">
+              <div class="upload-icon">
+                <i data-lucide="upload-cloud"></i>
+              </div>
+              <h3>Перетащите файл сюда</h3>
+              <p>или нажмите для выбора на компьютере</p>
+              <span class="file-limits">Поддерживаются MP3, WAV, M4A, MP4, MKV и др.</span>
+            </div>
+            <div class="selected-file-display" id="selected-file-display" style="display: none;">
+              <i data-lucide="file-check" class="file-success-icon"></i>
+              <div class="selected-file-info">
+                <span id="selected-file-name" class="file-name">filename.mp3</span>
+                <span id="selected-file-size" class="file-size">12.4 MB</span>
+              </div>
+              <button class="remove-file-btn" id="remove-file-btn" onclick="clearSelectedFile(event)">
+                <i data-lucide="x"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Link Input Section -->
+        <div id="section-link" class="input-section">
+          <div class="url-input-container">
+            <div class="input-wrapper">
+              <i data-lucide="youtube" class="input-icon"></i>
+              <input type="url" id="link-input" placeholder="Вставьте ссылку на YouTube или аудиофайл...">
+            </div>
+            <p class="url-hint">Поддерживаются ссылки на YouTube, YouTube Shorts, а также прямые ссылки на аудио/видео (.mp3, .mp4 и др.)</p>
+          </div>
+        </div>
+
+        <!-- Settings Card -->
+        <div class="settings-card">
+          <h2><i data-lucide="settings"></i> Настройки распознавания</h2>
+          
+          <div class="settings-group">
+            <label for="lang-select">🌐 Язык аудиозаписи</label>
+            <div class="custom-select-wrapper">
+              <select id="lang-select">
+                <option value="auto" selected>🌐 Автоопределение (Рекомендуется)</option>
+                <option value="ru">🇷🇺 Русский (Russian)</option>
+                <option value="en">🇬🇧 Английский (English)</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="settings-group">
+            <label for="format-select">📄 Формат текста</label>
+            <div class="custom-select-wrapper">
+              <select id="format-select">
+                <option value="text" selected>📄 Обычный текст (Без таймкодов)</option>
+                <option value="srt">🎬 SRT субтитры (С таймкодами)</option>
+                <option value="vtt">🎬 VTT субтитры (Для веб-плееров)</option>
+              </select>
+          </div>
+
+          <div class="settings-group checkbox-group">
+            <label class="checkbox-container">
+              <input type="checkbox" id="diarize-checkbox">
+              <span class="checkmark"></span>
+              <span class="checkbox-label">👥 Разделение по спикерам (Диаризация)</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Submit Button -->
+        <button id="submit-btn" class="submit-btn" onclick="startTranscription()">
+          <i data-lucide="zap"></i>
+          <span>Оцифровать речь</span>
+        </button>
+      </section>
+
+      <!-- Right Panel: Results & Status -->
+      <section class="result-panel">
+        <!-- Initial Idle View -->
+        <div id="view-idle" class="result-state active">
+          <div class="idle-content">
+            <div class="idle-icon-wrapper">
+              <i data-lucide="message-square-text" class="idle-icon"></i>
+            </div>
+            <h2>Готов к работе</h2>
+            <p>Загрузите аудио/видеофайл или укажите ссылку слева, выберите параметры и нажмите кнопку «Оцифровать речь» для запуска процесса.</p>
+          </div>
+        </div>
+
+        <!-- Processing State View -->
+        <div id="view-processing" class="result-state">
+          <div class="processing-content">
+            <div class="loader-spinner">
+              <div class="spinner-ring"></div>
+              <i data-lucide="cpu" class="loader-center-icon"></i>
+            </div>
+            
+            <h2 id="processing-title">Обработка...</h2>
+            <p id="processing-detail" class="status-detail">Очередь...</p>
+
+            <div class="progress-bar-container">
+              <div class="progress-bar-track">
+                <div id="progress-bar-fill" class="progress-bar-fill" style="width: 0%"></div>
+              </div>
+              <div class="progress-labels">
+                <span id="progress-percent">0%</span>
+              </div>
+            </div>
+
+            <!-- Detailed Steps Logger -->
+            <div class="log-console">
+              <div class="log-header">
+                <span>Журнал работы</span>
+                <span class="blinking-dot"></span>
+              </div>
+              <div id="log-output" class="log-output">
+                <div class="log-line">Инициализация процесса...</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Result Finished View -->
+        <div id="view-result" class="result-state">
+          <div class="result-content-container">
+            <div class="result-header">
+              <div class="result-meta">
+                <h2>Результат оцифровки</h2>
+                <span id="result-meta-info" class="meta-tag">TEXT • 100%</span>
+              </div>
+              <div class="result-actions">
+                <button id="copy-btn" class="action-btn" onclick="copyResultToClipboard()" title="Скопировать">
+                  <i data-lucide="copy"></i>
+                  <span>Копировать</span>
+                </button>
+                <button id="download-btn" class="action-btn primary" onclick="downloadResultFile()" title="Скачать файл">
+                  <i data-lucide="download"></i>
+                  <span>Скачать</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Text Display Box -->
+            <div class="text-result-wrapper">
+              <pre id="text-result-content" class="text-result-content">Результат загружается...</pre>
+            </div>
+
+            <!-- Statistics Footer -->
+            <div class="result-stats">
+              <div class="stat-item">
+                <i data-lucide="heading"></i>
+                <div>
+                  <span class="stat-value" id="stat-chars">0</span>
+                  <span class="stat-label">Символов</span>
+                </div>
+              </div>
+              <div class="stat-item">
+                <i data-lucide="file-text"></i>
+                <div>
+                  <span class="stat-value" id="stat-words">0</span>
+                  <span class="stat-label">Слов</span>
+                </div>
+              </div>
+              <div class="stat-item">
+                <i data-lucide="clock"></i>
+                <div>
+                  <span class="stat-value" id="stat-time">~0 м.</span>
+                  <span class="stat-label">Время чтения</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- Toast Notification System -->
+  <div id="toast" class="toast-notification">
+    <i data-lucide="check-circle" class="toast-icon"></i>
+    <span id="toast-message">Текст скопирован!</span>
+  </div>
+
+  <script src="app.js"></script>
+  <script>
+    // Initialize Lucide Icons on load
+    lucide.createIcons();
+  </script>
+</body>
+</html>

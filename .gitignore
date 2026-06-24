@@ -1,0 +1,13 @@
+# Dependencies
+node_modules/
+
+# Local configuration & credentials
+.env
+
+# Temporary and binary folders
+temp/
+bin/
+data/
+
+# Log files
+*.log

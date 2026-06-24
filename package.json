@@ -1,0 +1,33 @@
+{
+  "name": "groq-transcriber",
+  "version": "1.0.0",
+  "description": "Transcription service using Telegram Bot, Web App, and Groq Whisper API",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node src/index.js"
+  },
+  "keywords": [
+    "telegram",
+    "bot",
+    "transcribe",
+    "whisper",
+    "groq",
+    "audio",
+    "video"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@distube/ytdl-core": "^4.15.1",
+    "@ffmpeg-installer/ffmpeg": "^1.1.0",
+    "@ffprobe-installer/ffprobe": "^2.1.2",
+    "axios": "^1.7.2",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "fluent-ffmpeg": "^2.1.3",
+    "groq-sdk": "^0.5.0",
+    "multer": "^1.4.5-lts.1",
+    "telegraf": "^4.16.3"
+  }
+}
