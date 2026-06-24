@@ -30,6 +30,11 @@ app.use(express.urlencoded({ extended: true }));
 // Serve Web frontend static files
 app.use(express.static(path.join(__dirname, 'public')));
 
+// Health check endpoint to prevent Render free tier from sleeping
+app.get('/health', (req, res) => {
+  res.json({ status: 'ok', uptime: process.uptime() });
+});
+
 // In-memory job progress store
 const jobs = {};
 
