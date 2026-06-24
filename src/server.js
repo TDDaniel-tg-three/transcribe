@@ -2,6 +2,7 @@ const express = require('express');
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
+const http = require('http');
 const transcriber = require('./transcriber');
 const downloader = require('./downloader');
 
@@ -240,6 +241,16 @@ function initServer() {
   const server = app.listen(port, () => {
     console.log(`🌐 Web interface started at http://localhost:${port}`);
   });
+
+  // Self-ping every 10 minutes to prevent Render free tier from sleeping
+  const externalUrl = process.env.RENDER_EXTERNAL_URL || `http://localhost:${port}`;
+  setInterval(() => {
+    http.get(`${externalUrl}/health`, (res) => {
+      console.log(`[keepalive] ping OK (${res.statusCode})`);
+    }).on('error', (err) => {
+      console.error(`[keepalive] ping failed: ${err.message}`);
+    });
+  }, 10 * 60 * 1000);
   
   return server;
 }
